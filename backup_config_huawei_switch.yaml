@@ -1,9 +1,38 @@
 ---
-- name: Restart Ubuntu Servers
-  hosts: all
-  become: yes  # Required to run the reboot command
+- name: Backup Huawei Switch Configuration
+  hosts: huawei_switches
+  gather_facts: no
+  vars:
+    backup_dir: "./backups/{{ inventory_hostname }}"
+    filename: "config_{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
+    ftp_server: "192.168.1.100"
+    ftp_user: "network_admin"
+    ftp_pass: "your_password"
+
   tasks:
-    - name: Reboot the machine with a 5-minute timeout
-      ansible.builtin.reboot:
-        reboot_timeout: 300
-        msg: "Rebooting initiated by Ansible"
+    - name: Ensure local backup directory exists
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+      delegate_to: localhost
+
+    - name: Run display current-configuration
+      community.network.ce_command:
+        commands: display current-configuration
+      register: config_output
+
+    - name: Save configuration to local file
+      copy:
+        content: "{{ config_output.stdout[0] }}"
+        dest: "{{ backup_dir }}/{{ filename }}"
+      delegate_to: localhost
+
+    - name: Transfer backup to FTP server
+      community.general.ftp:
+        server: "{{ ftp_server }}"
+        user: "{{ ftp_user }}"
+        password: "{{ ftp_pass }}"
+        local_path: "{{ backup_dir }}/{{ filename }}"
+        remote_path: "/network_backups/{{ filename }}"
+        mode: put
+      delegate_to: localhost
