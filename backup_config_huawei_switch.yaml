@@ -1,37 +1,41 @@
 ---
-- name: Backup Huawei Switch Configuration
-  hosts: 192.168.100.15
+- name: Backup Huawei S5735 Configuration and Upload to FTP
+  hosts: huawei_switches192.168.100.15
   gather_facts: no
   vars:
-    ansible_connection: ansible.netcommon.network_cli
-    ansible_network_os: ce
-    backup_dir: "./backups/{{ inventory_hostname }}"
-    filename: "config_{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
+    # Sesuaikan dengan detail server FTP Anda
     ftp_server: "192.168.100.64"
     ftp_user: "ftpuser"
     ftp_pass: "ftpuser"
+    backup_dir: "./backups"
 
   tasks:
-    - name: Run display current-configuration
-      ansible.netcommon.cli_command:
-        command: display current-configuration
-      register: config_output
-
-    - name: Create backup directory
+    - name: Create local backup directory
       file:
         path: "{{ backup_dir }}"
         state: directory
       delegate_to: localhost
 
-    - name: Save configuration to file
-      copy:
-        content: "{{ config_output.stdout }}"
-        dest: "{{ backup_dir }}/{{ filename }}"
-      delegate_to: localhost
+    - name: Get running configuration from Huawei Switch
+      community.network.ce_config:
+        backup: yes
+        backup_options:
+          filename: "{{ inventory_hostname }}_config.cfg"
+          dir_path: "{{ backup_dir }}"
+      register: backup_result
 
-    - name: Upload configuration to FTP server
-      uri:
-        url: "ftp://{{ ftp_user }}:{{ ftp_pass }}@{{ ftp_server }}/{{ filename }}"
-        method: PUT
-        body: "{{ config_output.stdout }}"
+    - name: Upload configuration to FTP Server
       delegate_to: localhost
+      ansible.netcommon.net_put:
+        src: "{{ backup_dir }}/{{ inventory_hostname }}_config.cfg"
+        dest: "/network_backups/{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
+        protocol: ftp
+        remote_to_local: no
+      vars:
+        ansible_user: "{{ ftp_user }}"
+        ansible_password: "{{ ftp_pass }}"
+        ansible_host: "{{ ftp_server }}"
+
+    - name: Confirm Backup Status
+      debug:
+        msg: "Konfigurasi {{ inventory_hostname }} telah berhasil di-backup dan dikirim ke FTP."
