@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     ansible_connection: ansible.netcommon.network_cli
-    ansible_network_os: huaweidatacom.ne.ne
+    ansible_network_os: huaweidatacom.ce
     backup_dir: "./backups/{{ inventory_hostname }}"
     filename: "config_{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
     ftp_server: "192.168.100.64"
@@ -16,3 +16,22 @@
       ansible.netcommon.cli_command:
         command: display current-configuration
       register: config_output
+
+    - name: Create backup directory
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+      delegate_to: localhost
+
+    - name: Save configuration to file
+      copy:
+        content: "{{ config_output.stdout }}"
+        dest: "{{ backup_dir }}/{{ filename }}"
+      delegate_to: localhost
+
+    - name: Upload configuration to FTP server
+      uri:
+        url: "ftp://{{ ftp_user }}:{{ ftp_pass }}@{{ ftp_server }}/{{ filename }}"
+        method: PUT
+        body: "{{ config_output.stdout }}"
+      delegate_to: localhost
