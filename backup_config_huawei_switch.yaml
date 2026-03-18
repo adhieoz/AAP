@@ -1,13 +1,13 @@
 ---
 - name: Backup Huawei Switch Configuration
-  hosts: huawei_switches
+  hosts: 192.168.100.15
   gather_facts: no
   vars:
     backup_dir: "./backups/{{ inventory_hostname }}"
     filename: "config_{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
-    ftp_server: "192.168.1.100"
-    ftp_user: "network_admin"
-    ftp_pass: "your_password"
+    ftp_server: "192.168.100.64"
+    ftp_user: "ftpuser"
+    ftp_pass: "ftpuser"
 
   tasks:
     - name: Ensure local backup directory exists
