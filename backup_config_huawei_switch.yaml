@@ -17,7 +17,7 @@
       delegate_to: localhost
 
     - name: Run display current-configuration on switch
-      huaweidatacom.ne.cli_command:
+      huaweidatacom.ne.ne_command:
         command: display current-configuration
       register: config_output
 
