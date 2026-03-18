@@ -18,7 +18,7 @@
       delegate_to: localhost
 
     - name: Run display current-configuration
-      ansible.netcommon.network_cli:
+      ansible.netcommon.cli_command:
         command: display current-configuration
       register: config_output
 
