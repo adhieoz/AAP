@@ -8,7 +8,6 @@
     ftp_user: "ftpuser"
     ftp_pass: "ftpuser"
     backup_dir: "./backups"
-    ansible_network_os: huawei.network.vrp
 
   tasks:
     - name: Create local backup directory
@@ -21,6 +20,8 @@
       ansible.netcommon.cli_command:
         command: display current-configuration
       register: config_output
+      vars:
+        ansible_network_os: huawei.network.vrp
 
     - name: Save configuration to local file
       copy:
