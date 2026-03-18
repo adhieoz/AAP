@@ -1,0 +1,9 @@
+---
+- name: Restart Ubuntu Servers
+  hosts: all
+  become: yes  # Required to run the reboot command
+  tasks:
+    - name: Reboot the machine with a 5-minute timeout
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+        msg: "Rebooting initiated by Ansible"
