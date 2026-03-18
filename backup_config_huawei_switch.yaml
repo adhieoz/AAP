@@ -13,7 +13,7 @@
 
   tasks:
     - name: Ensure local backup directory exists
-      file:
+      ansible.builtin.file:
         path: "{{ backup_dir }}"
         state: directory
       delegate_to: localhost
@@ -24,13 +24,13 @@
       register: config_output
 
     - name: Save configuration to local file
-      copy:
-        content: "{{ config_output.stdout[0] }}"
+      ansible.builtin.copy:
+        content: "{{ config_output.stdout }}"
         dest: "{{ backup_dir }}/{{ filename }}"
       delegate_to: localhost
 
     - name: Transfer backup to FTP server
-      shell: |
+      ansible.builtin.shell: |
         ftp -n {{ ftp_server }} <<EOF
         user {{ ftp_user }} {{ ftp_pass }}
         put {{ backup_dir }}/{{ filename }} /network_backups/{{ filename }}
