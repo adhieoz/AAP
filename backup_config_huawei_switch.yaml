@@ -28,11 +28,12 @@
       delegate_to: localhost
 
     - name: Transfer backup to FTP server
-      community.general.ftp:
-        server: "{{ ftp_server }}"
-        user: "{{ ftp_user }}"
-        password: "{{ ftp_pass }}"
-        local_path: "{{ backup_dir }}/{{ filename }}"
-        remote_path: "/network_backups/{{ filename }}"
-        mode: put
+      shell: |
+        ftp -n {{ ftp_server }} <<EOF
+        user {{ ftp_user }} {{ ftp_pass }}
+        put {{ backup_dir }}/{{ filename }} /network_backups/{{ filename }}
+        bye
+        EOF
       delegate_to: localhost
+      register: ftp_result
+      failed_when: ftp_result.rc != 0
