@@ -3,8 +3,8 @@
   hosts: 192.168.100.15
   gather_facts: no
   connection: network_cli
-  ansible_network_os: huawei.network.vrp
-  vars:
+    vars:
+    ansible_network_os: huawei.network.vrp
     ftp_server: "192.168.100.64"
     ftp_user: "ftpuser"
     ftp_pass: "ftpuser"
