@@ -17,11 +17,11 @@
       delegate_to: localhost
 
     - name: Run display current-configuration on switch
-      huawei.network.cli_command:
+      ansible.netcommon.cli_command:
         command: display current-configuration
       register: config_output
       vars:
-        ansible_network_os: huawei.network 
+        ansible_network_os: huawei 
 
     - name: Save configuration to local file
       copy:
