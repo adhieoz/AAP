@@ -21,7 +21,7 @@
         command: display current-configuration
       register: config_output
       vars:
-        ansible_network_os: huawei.vrpnos.vrpnos
+        ansible_network_os: huaweidatacom.ne 
 
     - name: Save configuration to local file
       copy:
