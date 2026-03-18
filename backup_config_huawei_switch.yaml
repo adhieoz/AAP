@@ -17,7 +17,7 @@
       delegate_to: localhost
 
     - name: Run display current-configuration on switch
-      huaweidatacom.ne.ne_command:
+      blumleon.vrp.vrp_command:
         commands: display current-configuration
       register: config_output
 
