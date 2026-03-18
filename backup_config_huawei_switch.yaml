@@ -1,9 +1,8 @@
 ---
-- name: Backup Huawei S5735 Configuration and Upload to FTP
-  hosts: huawei_switches192.168.100.15
+- name: Backup Huawei S5735 via CLI Command
+  hosts: huawei_switches
   gather_facts: no
   vars:
-    # Sesuaikan dengan detail server FTP Anda
     ftp_server: "192.168.100.64"
     ftp_user: "ftpuser"
     ftp_pass: "ftpuser"
@@ -16,26 +15,24 @@
         state: directory
       delegate_to: localhost
 
-    - name: Get running configuration from Huawei Switch
-      community.network.ce_config:
-        backup: yes
-        backup_options:
-          filename: "{{ inventory_hostname }}_config.cfg"
-          dir_path: "{{ backup_dir }}"
-      register: backup_result
+    - name: Run display current-configuration on switch
+      ansible.netcommon.cli_command:
+        command: display current-configuration
+      register: config_output
 
-    - name: Upload configuration to FTP Server
+    - name: Save configuration to local file
+      copy:
+        content: "{{ config_output.stdout }}"
+        dest: "{{ backup_dir }}/{{ inventory_hostname }}_config.cfg"
+      delegate_to: localhost
+
+    - name: Upload to FTP Server
       delegate_to: localhost
       ansible.netcommon.net_put:
         src: "{{ backup_dir }}/{{ inventory_hostname }}_config.cfg"
-        dest: "/network_backups/{{ inventory_hostname }}_{{ ansible_date_time.date }}.cfg"
+        dest: "/network_backups/{{ inventory_hostname }}.cfg"
         protocol: ftp
-        remote_to_local: no
       vars:
         ansible_user: "{{ ftp_user }}"
         ansible_password: "{{ ftp_pass }}"
         ansible_host: "{{ ftp_server }}"
-
-    - name: Confirm Backup Status
-      debug:
-        msg: "Konfigurasi {{ inventory_hostname }} telah berhasil di-backup dan dikirim ke FTP."
