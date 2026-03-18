@@ -1,6 +1,6 @@
 ---
 - name: Restart Ubuntu Servers
-  hosts: all
+  hosts: 192.168.100.51
   become: yes  # Required to run the reboot command
   tasks:
     - name: Reboot the machine with a 5-minute timeout
