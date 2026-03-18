@@ -3,12 +3,12 @@
   hosts: 192.168.100.15
   gather_facts: no
   connection: network_cli
-    vars:
-    ansible_network_os: huawei.network.vrp
+  vars:
     ftp_server: "192.168.100.64"
     ftp_user: "ftpuser"
     ftp_pass: "ftpuser"
     backup_dir: "./backups"
+    ansible_network_os: huawei.network.vrp
 
   tasks:
     - name: Create local backup directory
