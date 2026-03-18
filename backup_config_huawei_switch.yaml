@@ -18,7 +18,7 @@
 
     - name: Run display current-configuration on switch
       huaweidatacom.ne.ne_command:
-        command: display current-configuration
+        commands: display current-configuration
       register: config_output
 
     - name: Save configuration to local file
