@@ -18,7 +18,7 @@
 
     - name: Run display current-configuration
       ansible.netcommon.cli_command:
-        commands: display current-configuration
+        command: display current-configuration
       register: config_output
 
     - name: Save configuration to local file
